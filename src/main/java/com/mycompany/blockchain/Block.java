@@ -9,7 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.time.Instant;
 
-public class Block implements Serializable{
+//Declaración de Variables
+    public class Block implements Serializable{
     private int id;
     private int nonce;
     private long timeStamp;
@@ -18,6 +19,7 @@ public class Block implements Serializable{
     private ArrayList<Vote> votes;
     private String electionName;
     
+    //Constructor con parámetros
     public Block(int pId, String pPrevHash){
         this.id = pId;
         this.timeStamp = Instant.now().toEpochMilli();
@@ -27,6 +29,7 @@ public class Block implements Serializable{
         this.hash = null;
     }
     
+    //Constructor sin parámetros
     public Block(){
         this.timeStamp = Instant.now().toEpochMilli();
         this.votes = new ArrayList<>();
@@ -35,6 +38,7 @@ public class Block implements Serializable{
         this.id = -1;
     }
     
+    //Función registrar que toma nonce y hash como parámetros, devuelve true si el ID es mayor que -1 y si el hash es nulo
     public boolean register(int pNonce, String pHash){
         if ((this.getId()>-1)&&(this.getNonce()<0)&&(this.getHash()==null)) {
             this.nonce = pNonce;
@@ -44,20 +48,24 @@ public class Block implements Serializable{
         else return false;
     }
     
+    //Función que toma como parámetros el votante y el candidato y los agrega al arraylist
     public void setVote(String pVoter, String pCandidate) {
         this.votes.add(new Vote(this.votes.size(), pVoter, pCandidate));
     }
 
+    //Función que toma como parámetros el objeto Vote y lo agrega al arrylist
     public void setVote(Vote pVote) {
         this.votes.add(new Vote(
                 this.votes.size(), pVote.getVoter(), pVote.getCandidate()
         ));
     }
-
+    
+    //Función que retorna los IDs de los objetos Vote
     public Vote getVote(int pId){
         return this.votes.get(pId);
     }
     
+    //Función que retorna la cantidad de votos en el array
     public int countVotes(){
         return this.votes.size();
     } 
@@ -97,5 +105,12 @@ public class Block implements Serializable{
         return previousHash;
     }
     
-    
+    @Override
+    public String toString(){
+        String sCad = Integer.toString(id) + Long.toString(timeStamp) + this.previousHash;
+        for (int i = 0; i < this.votes.size(); i++) {
+            sCad = sCad + this.votes.get(i).toString();
+        }
+        return sCad;
+    }
 }   

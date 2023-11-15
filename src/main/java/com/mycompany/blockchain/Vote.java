@@ -7,12 +7,15 @@ import java.time.Instant;
  *
  * @author diegod
  */
-public class Vote implements Serializable{
+
+//Declaración de Variables
+    public class Vote implements Serializable{
     private final int id;
     private final long timeStamp;
     private final String voter;
     private final String candidate;
     
+    //Constructor
     public Vote(int pId, String pVoter, String pCandidate) {
         this.id = pId;
         this.timeStamp = Instant.now().toEpochMilli();
@@ -20,6 +23,8 @@ public class Vote implements Serializable{
         this.candidate = pCandidate;
     }
     
+    
+    //Método To String para dar formato
     @Override
     public String toString(){
         return Integer.toString(getId())+Long.toString(getTimeStamp())+voter+candidate;
