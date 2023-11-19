@@ -1,4 +1,4 @@
-package com.mycompany.blockchain;
+package BlockChain;
 
 import java.security.MessageDigest;
 

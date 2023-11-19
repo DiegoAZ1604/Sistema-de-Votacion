@@ -1,4 +1,4 @@
-package com.mycompany.blockchain;
+package BlockChain;
 
 /**
  *
@@ -50,18 +50,21 @@ import java.util.List;
         return this.blockchain.size();
     }
     
-    public boolean createGenesis(String pVoter, String pCandidate){
-        if (this.size()<1) {
+    public boolean createGenesis(String pVoter, String pCandidate) {
+        if (this.size() < 1) {
             Block tmpBlock = new Block(0, "000000000000000000000000000000000000000000000000000000");
-            if (pVoter != null) tmpBlock.setVote("0000GeNeSiS", pCandidate);                 this.blockchain.add(tmpBlock);
+            if (pVoter != null) {
+                tmpBlock.setVote("0000GeNeSiS", pCandidate);
+            }
+            this.blockchain.add(tmpBlock);
             this.mineBlock();
             return true;
         }
         return false;
     }
     
-    public boolean createGenesis(){
-        if(this.size()<1){
+    public boolean createGenesis() {
+        if (this.size() < 1) {
             Block tmpBlock = new Block(0, "000000000000000000000000000000000000000000000000000000");
             this.mineBlock();
             return true;
@@ -69,31 +72,40 @@ import java.util.List;
         return false;
     }
     
-    public void createBlock(){
-        String prevHash = this.blockchain.get(this.blockchain.size()-1).getHash();
+   public void createBlock() {
+        String prevHash = this.blockchain.get(this.blockchain.size() - 1).getHash();
         this.blockchain.add(new Block(this.blockchain.size(), prevHash));
     }
+
     
-//    public double getVotesPerCandidate(String pCandidate){
-//        double positiveAmount = 0;
-//        for (int i = 0; i < this.size(); i++) {
-//            for (int j = 0; j < this.getBlock(i).countVotes(); j++) {
-//                
-//            }
-//        }
-//    }
-    
-    public boolean getProofOfWork_overBlock(Block blk){
+    public double getVotesPerCandidate(String pCandidate) {
+        double positiveAmount = 0;
+
+        for (int i = 0; i < this.size(); i++) {
+            Block block = this.getBlock(i);
+
+            for (int j = 0; j < block.countVotes(); j++) {
+                Vote vote = block.getVote(j);
+
+                if (vote.getCandidate().equals(pCandidate)) {
+                    positiveAmount++;
+                }
+            }
+        }
+
+        return positiveAmount;
+    }
+
+    public boolean getProofOfWork_overBlock(Block blk) {
         String cad = blk.toString();
         int nonce = blk.getNonce();
-        String sHash = "";
-        //sHash = this.generateHash(cad + Integer.toString(nonce));
-        if(sHash.equals(blk.getHash())) return true;
-        else return false;
+        String sHash = this.generateHash(cad + Integer.toString(nonce));
+
+        return sHash.equals(blk.getHash());
     }
     
-    public boolean addProvedBlock(Block blk){
-        if(!this.blockExist(blk)){
+    public boolean addProvedBlock(Block blk) {
+        if (!this.blockExist(blk)) {
             if (this.getProofOfWork_overBlock(blk)) {
                 this.blockchain.add(blk);
                 return true;
@@ -102,49 +114,59 @@ import java.util.List;
         return false;
     }
     
-    public void mineBlock(){
-        String cad = this.blockchain.get(this.blockchain.size()-1).toString();
+    public void mineBlock() {
+        String cad = this.blockchain.get(this.blockchain.size() - 1).toString();
         int nonce = 0;
-        String sHash = "";
-        while(true){
+        String sHash;
+
+        while (true) {
             sHash = this.generateHash(cad + Integer.toString(nonce));
-            if (sHash.subSequence(0, complexity).equals(this.proofOfWork)) {
-                this.blockchain.get(this.blockchain.size()-1).register(nonce, sHash);
+            if (sHash.substring(0, complexity).equals(this.proofOfWork)) {
+                this.blockchain.get(this.blockchain.size() - 1).register(nonce, sHash);
                 break;
             }
             nonce++;
         }
     }
     
-    private String generateHash(String pCad){
-        try{
+    private String generateHash(String pCad) {
+        try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(pCad.getBytes("UTF-8"));
-            StringBuffer hexadecimalString = new StringBuffer();
-            for (int i = 0; i < hash.length; i++) {
-                String hexadecimal = Integer.toHexString(0xff & hash[i]);
-                if (hexadecimal.length()==1) hexadecimalString.append('0');
+            StringBuilder hexadecimalString = new StringBuilder();
+            for (byte b : hash) {
+                String hexadecimal = Integer.toHexString(0xff & b);
+                if (hexadecimal.length() == 1) hexadecimalString.append('0');
                 hexadecimalString.append(hexadecimal);
             }
             return hexadecimalString.toString();
-        } catch (Exception ee){
+        } catch (Exception ee) {
             System.out.println("Error generando hash");
             return null;
         }
     }
     
-//    public String votesReport(int nBlock){
-//        String sCad = "";
-//        Block blk = this.blockchain.get(nBlock);
-//        for (int i = 0; i < blk.countVotes(); i++) {
-//            //sCad += "'\t Transacción #" + Integer.
-//        }
-//    }
+   public String votesReport(int nBlock) {
+    StringBuilder sCad = new StringBuilder();
+    Block blk = this.blockchain.get(nBlock);
+
+    sCad.append("Votes Report for Block ").append(nBlock).append(":\n");
+
+    for (int i = 0; i < blk.countVotes(); i++) {
+        Vote vote = blk.getVote(i);
+        sCad.append("\tTransaction #").append(vote.getId());
+        sCad.append("\tVoter: ").append(vote.getVoter());
+        sCad.append("\tCandidate: ").append(vote.getCandidate()).append("\n");
+    }
+
+    return sCad.toString();
+}
+
     
     @Override
-    public String toString(){
-        String blockChain = "";
-        for(Block block : this.blockchain) blockChain += block.toString() + "\n";
-        return blockChain;
+    public String toString() {
+        StringBuilder blockChain = new StringBuilder();
+        for (Block block : this.blockchain) blockChain.append(block.toString()).append("\n");
+        return blockChain.toString();
     }
 }

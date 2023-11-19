@@ -1,4 +1,4 @@
-package com.mycompany.blockchain;
+package BlockChain;
 
 /**
  *
@@ -17,7 +17,7 @@ import java.time.Instant;
     private String hash;
     private String previousHash;
     private ArrayList<Vote> votes;
-    private String electionName;
+    //private String electionName;
     
     //Constructor con parámetros
     public Block(int pId, String pPrevHash){
@@ -45,7 +45,8 @@ import java.time.Instant;
             this.hash = pHash;
             return true;
         }
-        else return false;
+        else 
+            return false;
     }
     
     //Función que toma como parámetros el votante y el candidato y los agrega al arraylist
@@ -105,12 +106,21 @@ import java.time.Instant;
         return previousHash;
     }
     
+//    @Override
+//    public String toString(){
+//        String sCad = Integer.toString(id) + Long.toString(timeStamp) + this.previousHash;
+//        for (int i = 0; i < this.votes.size(); i++) {
+//            sCad = sCad + this.votes.get(i).toString();
+//        }
+//        return sCad;
+//    }
+    
     @Override
-    public String toString(){
-        String sCad = Integer.toString(id) + Long.toString(timeStamp) + this.previousHash;
+    public String toString() {
+        StringBuilder sCad = new StringBuilder(Integer.toString(id) + Long.toString(timeStamp) + this.previousHash);
         for (int i = 0; i < this.votes.size(); i++) {
-            sCad = sCad + this.votes.get(i).toString();
+            sCad.append(this.votes.get(i).toString());
         }
-        return sCad;
+        return sCad.toString();
     }
 }   
