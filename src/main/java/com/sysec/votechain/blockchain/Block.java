@@ -1,4 +1,4 @@
-package BlockChain;
+package com.sysec.votechain.blockchain;
 
 /**
  *

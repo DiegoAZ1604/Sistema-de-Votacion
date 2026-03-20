@@ -1,9 +1,5 @@
-package BlockChain;
+package com.sysec.votechain.blockchain;
 
-/**
- *
- * @author diegod
- */
 import java.util.ArrayList;
 import java.util.List;
 
