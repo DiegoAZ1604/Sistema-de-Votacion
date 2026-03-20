@@ -3,6 +3,7 @@ package com.sysec.votechain.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -15,18 +16,21 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    // 256-bit minimum for HS256 — move to application.properties in Phase 4
-    private static final String SECRET = "votechain-secret-key-sysec-2024-diego";
-    private static final long EXPIRATION_MS = 1000 * 60 * 60 * 8; // 8 hours
+    private final SecretKey key;
+    private final long expirationMs;
 
-    private final SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    public JwtUtil(@Value("${jwt.secret}") String secret,
+                   @Value("${jwt.expiration-ms}") long expirationMs) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.expirationMs = expirationMs;
+    }
 
     public String generateToken(String username, String role) {
         return Jwts.builder()
                 .subject(username)
                 .claim("role", role)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_MS))
+                .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
                 .compact();
     }

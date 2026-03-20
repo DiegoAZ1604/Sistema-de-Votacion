@@ -1,36 +1,51 @@
 package com.sysec.votechain.security;
 
 import com.sysec.votechain.model.User;
+import com.sysec.votechain.model.UserEntity;
+import com.sysec.votechain.repository.UserJpaRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
- * In-memory user store. Replaced by PostgreSQL in Phase 4.
+ * User store backed by PostgreSQL via JPA.
  * @author Diego
  */
 @Component
 public class UserRepository {
 
-    private final Map<String, User> users = new HashMap<>();
+    private final UserJpaRepository jpa;
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public UserRepository() {
-        // Seed users for development — replaced by DB registration in Phase 4
-        users.put("admin", new User("admin", "admin123", User.Role.ADMIN));
-        users.put("voter1", new User("voter1", "pass123", User.Role.VOTER));
+    public UserRepository(UserJpaRepository jpa) {
+        this.jpa = jpa;
+        seedDefaultUsers();
     }
 
-    public Optional<User> findByUsername(String username) {
-        return Optional.ofNullable(users.get(username));
+    // Seed admin and a test voter on first run — skipped if they already exist
+    private void seedDefaultUsers() {
+        if (!jpa.existsByUsername("admin")) {
+            jpa.save(new UserEntity("admin", encoder.encode("admin123"), User.Role.ADMIN));
+        }
+        if (!jpa.existsByUsername("voter1")) {
+            jpa.save(new UserEntity("voter1", encoder.encode("pass123"), User.Role.VOTER));
+        }
+    }
+
+    public Optional<UserEntity> findByUsername(String username) {
+        return jpa.findByUsername(username);
     }
 
     public boolean existsByUsername(String username) {
-        return users.containsKey(username);
+        return jpa.existsByUsername(username);
     }
 
-    public void save(User user) {
-        users.put(user.getUsername(), user);
+    public void save(String username, String rawPassword, User.Role role) {
+        jpa.save(new UserEntity(username, encoder.encode(rawPassword), role));
+    }
+
+    public boolean checkPassword(UserEntity user, String rawPassword) {
+        return encoder.matches(rawPassword, user.getPassword());
     }
 }

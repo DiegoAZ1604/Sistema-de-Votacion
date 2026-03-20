@@ -23,6 +23,15 @@ import java.time.Instant;
         this.candidate = pCandidate;
     }
 
+    // Constructor for reconstruction from persistence
+    public Vote(int pId, String pVoter, String pCandidate, long pTimeStamp) {
+    this.id = pId;
+    this.timeStamp = pTimeStamp;
+    this.voter = pVoter;
+    this.candidate = pCandidate;
+    }
+
+
     @Override
     public String toString() {
         return Integer.toString(getId()) + Long.toString(getTimeStamp()) + voter + candidate;

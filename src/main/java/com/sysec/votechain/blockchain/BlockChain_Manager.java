@@ -126,6 +126,12 @@ import java.util.List;
         }
         return false;
     }
+
+    // Loads a pre-validated block directly from persistence — bypasses PoW check
+    public void loadBlock(Block blk) {
+        this.blockchain.add(blk);
+    }
+
     
     public void mineBlock() {
         String cad = this.blockchain.get(this.blockchain.size() - 1).toString();

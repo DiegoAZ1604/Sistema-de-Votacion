@@ -37,6 +37,22 @@ import java.time.Instant;
         this.hash = null;
         this.id = -1;
     }
+
+    // Constructor for reconstruction from persistence — preserves original timestamps
+    public Block(int pId, String pPrevHash, long pTimeStamp, int pNonce, String pHash) {
+    this.id = pId;
+    this.timeStamp = pTimeStamp;
+    this.previousHash = pPrevHash;
+    this.votes = new ArrayList<>();
+    this.nonce = pNonce;
+    this.hash = pHash;
+    }
+
+    // Adds a vote directly without recreating it — used during chain reconstruction
+    public void addVote(Vote pVote) {
+        this.votes.add(pVote);
+    }
+
     
     //Función registrar que toma nonce y hash como parámetros, devuelve true si el ID es mayor que -1 y si el hash es nulo
     public boolean register(int pNonce, String pHash){
