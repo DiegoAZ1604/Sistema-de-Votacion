@@ -4,7 +4,6 @@ package BlockChain;
  *
  * @author diegod
  */
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,40 +65,58 @@ import java.util.List;
     public boolean createGenesis() {
         if (this.size() < 1) {
             Block tmpBlock = new Block(0, "000000000000000000000000000000000000000000000000000000");
+            this.blockchain.add(tmpBlock);
             this.mineBlock();
             return true;
         }
         return false;
     }
+
     
-   public void createBlock() {
+    public void createBlock() {
         String prevHash = this.blockchain.get(this.blockchain.size() - 1).getHash();
         this.blockchain.add(new Block(this.blockchain.size(), prevHash));
     }
 
     
-    public double getVotesPerCandidate(String pCandidate) {
-        double positiveAmount = 0;
+    public int getVotesPerCandidate(String pCandidate) {
+        int count = 0;
 
         for (int i = 0; i < this.size(); i++) {
             Block block = this.getBlock(i);
 
             for (int j = 0; j < block.countVotes(); j++) {
-                Vote vote = block.getVote(j);
-
-                if (vote.getCandidate().equals(pCandidate)) {
-                    positiveAmount++;
+                if (block.getVote(j).getCandidate().equals(pCandidate)) {
+                    count++;
                 }
             }
         }
 
-        return positiveAmount;
+        return count;
     }
+
+    public boolean voterHasVoted(String voterId) {
+    for (int i = 0; i < this.size(); i++) {
+        Block block = this.getBlock(i);
+        for (int j = 0; j < block.countVotes(); j++) {
+            if (block.getVote(j).getVoter().equals(voterId)) return true;
+        }
+    }
+    return false;
+    }
+
+    public boolean castVote(String voterId, String candidateId) {
+        if (this.voterHasVoted(voterId)) return false;
+        this.getLastBlock().setVote(voterId, candidateId);
+        return true;
+    }
+
 
     public boolean getProofOfWork_overBlock(Block blk) {
         String cad = blk.toString();
         int nonce = blk.getNonce();
-        String sHash = this.generateHash(cad + Integer.toString(nonce));
+        String sHash = SHA256.generateHash(cad + Integer.toString(nonce));
+
 
         return sHash.equals(blk.getHash());
     }
@@ -120,29 +137,12 @@ import java.util.List;
         String sHash;
 
         while (true) {
-            sHash = this.generateHash(cad + Integer.toString(nonce));
+            sHash = SHA256.generateHash(cad + Integer.toString(nonce));
             if (sHash.substring(0, complexity).equals(this.proofOfWork)) {
                 this.blockchain.get(this.blockchain.size() - 1).register(nonce, sHash);
                 break;
             }
             nonce++;
-        }
-    }
-    
-    private String generateHash(String pCad) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(pCad.getBytes("UTF-8"));
-            StringBuilder hexadecimalString = new StringBuilder();
-            for (byte b : hash) {
-                String hexadecimal = Integer.toHexString(0xff & b);
-                if (hexadecimal.length() == 1) hexadecimalString.append('0');
-                hexadecimalString.append(hexadecimal);
-            }
-            return hexadecimalString.toString();
-        } catch (Exception ee) {
-            System.out.println("Error generando hash");
-            return null;
         }
     }
     
